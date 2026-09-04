@@ -1,0 +1,17 @@
+  #### Model 1:
+
+    python train.py --model resnet34_plus
+    python predict.py --model resnet34_plus
+    python draw_graphs.py --model resnet34_plus
+    
+  #### Model 2:
+
+    python train.py --model unet_inception
+    python predict.py --model unet_inception
+    python draw_graphs.py --model unet_inception
+
+  #### Model 3:
+
+    python train.py --model se_resnext50
+    python predict.py --model se_resnext50
+    python draw_graphs.py --model se_resnext50
