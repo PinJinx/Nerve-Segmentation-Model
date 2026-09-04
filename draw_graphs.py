@@ -358,46 +358,46 @@ def plot_model_performance(val_eval_data, model_name='resnet34_plus'):
 
     gs = gridspec.GridSpec(2, 3, figure=fig, hspace=0.40, wspace=0.32)
 
-    # ── 1. Model Specification Card & Key Metrics Table (Top-Left)
-    ax0 = fig.add_subplot(gs[0, 0])
-    ax0.axis("off")
-    ax0.set_title("Model Specification & Metrics Summary", fontsize=11, pad=10, fontweight="bold")
+    # # ── 1. Model Specification Card & Key Metrics Table (Top-Left)
+    # ax0 = fig.add_subplot(gs[0, 0])
+    # ax0.axis("off")
+    # ax0.set_title("Model Specification & Metrics Summary", fontsize=11, pad=10, fontweight="bold")
 
-    table_data = [
-        ["Model Name",       f"{spec['display_name']} ({spec['canonical_name']})"],
-        ["Encoder Backbone", spec['backbone']],
-        ["Decoder Type",     spec['decoder']],
-        ["Total Parameters", f"{spec['total_params_fmt']} ({spec['total_params']:,})"],
-        ["Val Samples (N)",  f"{metrics['N']}"],
-        ["Accuracy (Cls)",   f"{metrics['cls_acc'] * 100:.2f}%"],
-        ["F1 Score (Cls)",   f"{metrics['cls_f1']:.4f}"],
-        ["Precision / Rec",  f"{metrics['cls_prec']:.4f} / {metrics['cls_rec']:.4f}"],
-        ["Specificity",      f"{metrics['cls_spec']:.4f}"],
-        ["ROC-AUC / PR-AUC", f"{metrics['roc_auc']:.4f} / {metrics['pr_auc']:.4f}"],
-        ["Mean Dice (Mask)", f"{metrics['mean_dice']:.4f} (Med: {metrics['median_dice']:.4f})"],
-        ["Mean IoU (Mask)",  f"{metrics['mean_iou']:.4f} (Med: {metrics['median_iou']:.4f})"],
-        ["Optimal Threshold",f"{metrics['opt_thresh']:.2f} (Peak F1: {metrics['opt_f1']:.4f})"],
-    ]
+    # table_data = [
+    #     ["Model Name",       f"{spec['display_name']} ({spec['canonical_name']})"],
+    #     ["Encoder Backbone", spec['backbone']],
+    #     ["Decoder Type",     spec['decoder']],
+    #     ["Total Parameters", f"{spec['total_params_fmt']} ({spec['total_params']:,})"],
+    #     ["Val Samples (N)",  f"{metrics['N']}"],
+    #     ["Accuracy (Cls)",   f"{metrics['cls_acc'] * 100:.2f}%"],
+    #     ["F1 Score (Cls)",   f"{metrics['cls_f1']:.4f}"],
+    #     ["Precision / Rec",  f"{metrics['cls_prec']:.4f} / {metrics['cls_rec']:.4f}"],
+    #     ["Specificity",      f"{metrics['cls_spec']:.4f}"],
+    #     ["ROC-AUC / PR-AUC", f"{metrics['roc_auc']:.4f} / {metrics['pr_auc']:.4f}"],
+    #     ["Mean Dice (Mask)", f"{metrics['mean_dice']:.4f} (Med: {metrics['median_dice']:.4f})"],
+    #     ["Mean IoU (Mask)",  f"{metrics['mean_iou']:.4f} (Med: {metrics['median_iou']:.4f})"],
+    #     ["Optimal Threshold",f"{metrics['opt_thresh']:.2f} (Peak F1: {metrics['opt_f1']:.4f})"],
+    # ]
 
-    table = ax0.table(
-        cellText=table_data,
-        colLabels=["Specification / Metric", "Value / Score"],
-        cellLoc="left",
-        loc="center",
-        bbox=[0, -0.05, 1, 1.05],
-    )
-    table.auto_set_font_size(False)
-    table.set_fontsize(8.5)
-    for (r, c), cell in table.get_celld().items():
-        cell.set_edgecolor(GRID_C)
-        if r == 0:
-            cell.set_facecolor("#151824")
-            cell.set_text_props(color=ACCENT2, fontweight="bold")
-        else:
-            cell.set_facecolor(CARD if r % 2 == 0 else CARD2)
-            cell.set_text_props(color=TEXT)
-            if c == 1 and ("F1" in table_data[r - 1][0] or "Dice" in table_data[r - 1][0] or "Accuracy" in table_data[r - 1][0]):
-                cell.set_text_props(color=GREEN, fontweight="bold")
+    # table = ax0.table(
+    #     cellText=table_data,
+    #     colLabels=["Specification / Metric", "Value / Score"],
+    #     cellLoc="left",
+    #     loc="center",
+    #     bbox=[0, -0.05, 1, 1.05],
+    # )
+    # table.auto_set_font_size(False)
+    # table.set_fontsize(8.5)
+    # for (r, c), cell in table.get_celld().items():
+    #     cell.set_edgecolor(GRID_C)
+    #     if r == 0:
+    #         cell.set_facecolor("#151824")
+    #         cell.set_text_props(color=ACCENT2, fontweight="bold")
+    #     else:
+    #         cell.set_facecolor(CARD if r % 2 == 0 else CARD2)
+    #         cell.set_text_props(color=TEXT)
+    #         if c == 1 and ("F1" in table_data[r - 1][0] or "Dice" in table_data[r - 1][0] or "Accuracy" in table_data[r - 1][0]):
+    #             cell.set_text_props(color=GREEN, fontweight="bold")
 
     # ── 2. Confusion Matrix Heatmap (Top-Middle)
     ax1 = fig.add_subplot(gs[0, 1])

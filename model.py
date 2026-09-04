@@ -178,7 +178,13 @@ class PretrainedUNet(nn.Module):
             activation='sigmoid'
         )
 
-        self.aux_head = None
+        in_ch = self.model.encoder.out_channels[-1]
+        self.aux_head = nn.Sequential(
+            nn.AdaptiveAvgPool2d((1, 1)),
+            nn.Flatten(),
+            nn.Linear(in_ch, 1),
+            nn.Sigmoid()
+        )
 
     def forward(self, x):
         # Pad input so spatial H, W are exact multiples of 32
@@ -193,16 +199,6 @@ class PretrainedUNet(nn.Module):
 
         features = self.model.encoder(x_pad)
         bottleneck = features[-1].detach()
-
-        if self.aux_head is None:
-            in_ch = bottleneck.shape[1]
-            self.aux_head = nn.Sequential(
-                nn.AdaptiveAvgPool2d((1, 1)),
-                nn.Flatten(),
-                nn.Linear(in_ch, 1),
-                nn.Sigmoid()
-            ).to(x.device)
-
         aux = self.aux_head(bottleneck).reshape(x.size(0))
         decoder_output = self.model.decoder(features)
         seg = self.model.segmentation_head(decoder_output)
