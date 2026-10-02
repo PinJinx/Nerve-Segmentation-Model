@@ -1,17 +1,35 @@
-  #### Model 1:
+  #### Model 1 (ResNet-34 UNet++):
 
     python train.py --model resnet34_plus
     python predict.py --model resnet34_plus
     python draw_graphs.py --model resnet34_plus
     
-  #### Model 2:
+  #### Model 2 (Custom Inception UNet):
 
     python train.py --model unet_inception
     python predict.py --model unet_inception
     python draw_graphs.py --model unet_inception
 
-  #### Model 3:
+  #### Model 3 (SE-ResNeXt-50 UNet):
 
     python train.py --model se_resnext50
     python predict.py --model se_resnext50
     python draw_graphs.py --model se_resnext50
+
+  #### Model 4 (EfficientNet-B3 UNet):
+
+    python train.py --model efficientnet_b3
+    python predict.py --model efficientnet_b3
+    python draw_graphs.py --model efficientnet_b3
+
+  #### Model 5 (MobileNet-V2 FPN):
+
+    python train.py --model fpn_mobilenet
+    python predict.py --model fpn_mobilenet
+    python draw_graphs.py --model fpn_mobilenet
+
+  #### Model 6 (ResNet-18 MAnet):
+
+    python train.py --model manet_resnet18
+    python predict.py --model manet_resnet18
+    python draw_graphs.py --model manet_resnet18

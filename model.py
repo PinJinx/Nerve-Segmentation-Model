@@ -158,7 +158,7 @@ class UNet(nn.Module):
 class PretrainedUNet(nn.Module):
     """
     Segmentation model using pretrained encoder from segmentation_models_pytorch.
-    Supports ImageNet backbones (resnet34, se_resnext50_32x4d)
+    Supports ImageNet backbones (resnet34, se_resnext50_32x4d, efficientnet-b3, mobilenet_v2, resnet50)
     with dual output: segmentation mask (seg) + existence probability (aux).
     """
     def __init__(self, encoder_name='resnet34', encoder_weights='imagenet', net_type='unet'):
@@ -167,6 +167,10 @@ class PretrainedUNet(nn.Module):
         
         if net_type == 'unetplusplus':
             model_cls = smp.UnetPlusPlus
+        elif net_type == 'fpn':
+            model_cls = smp.FPN
+        elif net_type == 'manet':
+            model_cls = smp.MAnet
         else:
             model_cls = smp.Unet
 
@@ -200,7 +204,10 @@ class PretrainedUNet(nn.Module):
         features = self.model.encoder(x_pad)
         bottleneck = features[-1].detach()
         aux = self.aux_head(bottleneck).reshape(x.size(0))
-        decoder_output = self.model.decoder(features)
+        try:
+            decoder_output = self.model.decoder(*features)
+        except TypeError:
+            decoder_output = self.model.decoder(features)
         seg = self.model.segmentation_head(decoder_output)
 
         if pad_h > 0 or pad_w > 0:
@@ -213,16 +220,30 @@ MODEL_REGISTRY = {
     'unet_inception': lambda: UNet(),
     'resnet34_plus': lambda: PretrainedUNet(encoder_name='resnet34', encoder_weights='imagenet', net_type='unetplusplus'),
     'se_resnext50': lambda: PretrainedUNet(encoder_name='se_resnext50_32x4d', encoder_weights='imagenet', net_type='unet'),
+    'efficientnet_b3': lambda: PretrainedUNet(encoder_name='efficientnet-b3', encoder_weights='imagenet', net_type='unet'),
+    'fpn_mobilenet': lambda: PretrainedUNet(encoder_name='mobilenet_v2', encoder_weights='imagenet', net_type='fpn'),
+    'manet_resnet18': lambda: PretrainedUNet(encoder_name='resnet18', encoder_weights='imagenet', net_type='manet'),
 }
 
 MODEL_ALIASES = {
+    'unet': 'unet_inception',
+    'unet_inception': 'unet_inception',
     'resnet34': 'resnet34_plus',
     'resnet34_plus': 'resnet34_plus',
     'resnet34+': 'resnet34_plus',
-    'unet': 'unet_inception',
-    'unet_inception': 'unet_inception',
     'resnext50': 'se_resnext50',
     'se_resnext50': 'se_resnext50',
+    'efficientnet': 'efficientnet_b3',
+    'efficientnet_b3': 'efficientnet_b3',
+    'effnet_b3': 'efficientnet_b3',
+    'mobilenet': 'fpn_mobilenet',
+    'fpn_mobilenet': 'fpn_mobilenet',
+    'mobilenet_fpn': 'fpn_mobilenet',
+    'fpn': 'fpn_mobilenet',
+    'manet': 'manet_resnet18',
+    'manet_resnet18': 'manet_resnet18',
+    'resnet18_manet': 'manet_resnet18',
+    'manet_resnet50': 'manet_resnet18',
 }
 
 
@@ -264,7 +285,25 @@ def get_model_spec(model_name: str = 'resnet34_plus') -> dict:
             'backbone': 'SE-ResNeXt-50 32x4d (Pretrained ImageNet)',
             'decoder': 'UNet Decoder with Attention / Squeeze-and-Excitation',
             'description': 'High-capacity segmentation model with Squeeze-and-Excitation ResNeXt-50 encoder and dual aux head.',
-        }
+        },
+        'efficientnet_b3': {
+            'display_name': 'EfficientNet-B3 UNet',
+            'backbone': 'EfficientNet-B3 (Pretrained ImageNet)',
+            'decoder': 'UNet Decoder',
+            'description': 'High-efficiency segmentation model with compound-scaled EfficientNet-B3 encoder and dual aux head.',
+        },
+        'fpn_mobilenet': {
+            'display_name': 'MobileNet-V2 FPN',
+            'backbone': 'MobileNet-V2 (Pretrained ImageNet)',
+            'decoder': 'Feature Pyramid Network (FPN)',
+            'description': 'Lightweight & fast segmentation model using MobileNet-V2 with Feature Pyramid Network and dual aux head.',
+        },
+        'manet_resnet18': {
+            'display_name': 'ResNet-18 MAnet',
+            'backbone': 'ResNet-18 (Pretrained ImageNet)',
+            'decoder': 'MAnet (Multi-scale Attention Network)',
+            'description': 'Lightweight Multi-scale Attention Network with ResNet-18 encoder optimized for laptop training and fast inference.',
+        },
     }
 
     info = specs[canonical]
@@ -280,7 +319,7 @@ def get_model_spec(model_name: str = 'resnet34_plus') -> dict:
 
 if __name__ == '__main__':
     print("Testing Model Registry & Specifications:\n" + "=" * 50)
-    for name in ['unet_inception', 'resnet34_plus', 'se_resnext50']:
+    for name in list(MODEL_REGISTRY.keys()):
         spec = get_model_spec(name)
         print(f"Model: {spec['display_name']} [{spec['canonical_name']}]")
         print(f"  Backbone: {spec['backbone']}")
@@ -292,5 +331,6 @@ if __name__ == '__main__':
         dummy = torch.randn(2, 1, IMG_ROWS, IMG_COLS)
         seg, aux = m(dummy)
         print(f"  Output shapes -> Seg: {seg.shape}, Aux: {aux.shape}\n")
+
 
 

@@ -113,7 +113,7 @@ def run_prediction(model_name='resnet34_plus', batch_size=128, models_to_ensembl
     imgs_tensor = torch.from_numpy(imgs_test)
 
     if model_name.lower() == 'ensemble':
-        default_ensemble = ['resnet34_plus', 'unet_inception', 'se_resnext50']
+        default_ensemble = list(MODEL_REGISTRY.keys())
         target_models = [resolve_model_name(m) for m in (models_to_ensemble or default_ensemble)]
         
         print("\n" + "=" * 60)
@@ -153,7 +153,7 @@ if __name__ == '__main__':
                         choices=valid_models + ['ensemble'],
                         help='Model architecture to predict with, or "ensemble"')
     parser.add_argument('--batch', type=int, default=128, help='Batch size for prediction')
-    parser.add_argument('--ensemble_models', nargs='*', default=['resnet34_plus', 'unet_inception', 'se_resnext50'],
+    parser.add_argument('--ensemble_models', nargs='*', default=list(MODEL_REGISTRY.keys()),
                         help='Models to combine when --model ensemble is specified')
     parser.add_argument('--no_tta', action='store_true', help='Disable test-time augmentation')
     args = parser.parse_args()
