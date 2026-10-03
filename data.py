@@ -2,6 +2,7 @@ import os
 import numpy as np
 import cv2
 import pickle
+from imge_process import preprocess_image
 
 DATA_DIR = os.path.join(os.path.dirname(__file__), './')
 NP_DIR  = os.path.join(os.path.dirname(__file__), 'np_data')
@@ -28,8 +29,11 @@ def _build_train():
     patients = np.zeros(n, dtype=np.uint8)
     for i, name in enumerate(names):
         mask_name   = name.split('.')[0] + '_mask.tif'
-        imgs[i, 0]  = cv2.imread(os.path.join(folder, name), cv2.IMREAD_GRAYSCALE)
-        masks[i, 0] = cv2.imread(os.path.join(folder, mask_name), cv2.IMREAD_GRAYSCALE)
+        img_raw     = cv2.imread(os.path.join(folder, name), cv2.IMREAD_GRAYSCALE)
+        mask_raw    = cv2.imread(os.path.join(folder, mask_name), cv2.IMREAD_GRAYSCALE)
+
+        imgs[i, 0]  = preprocess_image(img_raw)
+        masks[i, 0] = mask_raw
         patients[i] = int(name.split('_')[0])
         if i % 100 == 0:
             print(f'  train {i}/{n}')
@@ -45,7 +49,8 @@ def _build_test():
     imgs = np.zeros((n, 1, RAW_ROWS, RAW_COLS), dtype=np.uint8)
     ids  = np.zeros(n, dtype=np.int32)
     for i, name in enumerate(names):
-        imgs[i, 0] = cv2.imread(os.path.join(folder, name), cv2.IMREAD_GRAYSCALE)
+        img_raw    = cv2.imread(os.path.join(folder, name), cv2.IMREAD_GRAYSCALE)
+        imgs[i, 0] = preprocess_image(img_raw)
         ids[i]     = int(name.split('.')[0])
         if i % 100 == 0:
             print(f'  test {i}/{n}')
